@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Canvas App</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.cs
+	s" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+
+	<style>
+
+	.top-bar {
+	    display: flex;
+	    flex-direction: row;
+	    background-color: #3af;
+	    border-bottom: 2px solid black;
+	    position: relative;
+	    width: 100%;
+	}
+
+	.top-bar * {
+	    margin: 5px 10px;
+	}
+
+	#draw {
+	    display: block;
+	}
+	
+	body {
+		margin-top: 30px;
+	}
+
+	#messageArea {
+		display: none;
+	}
+
+	canvas {
+		border: 1px solid black;
+	}
+
+
+
+	</style>
+</head>
+<body>
+	<div class="container-fluid">
+		<div class="row" id="userFormArea">
+			<div class="col-md-12">
+
+
+				<form id="userForm">
+					<div class="form-group">
+
+						<label>Enter Username</label>
+
+						<input class="form-control" id="username">
+						<br>
+
+						<input type="submit" class="btn btn-primary" value="Login">
+
+
+					</div>
+				</form>
+
+
+			</div>
+
+
+
+		</div>
+		<div class="row" id="messageArea">
+
+		
+
+
+			<div class="col-md-8 container">
+				<div class="top-bar">
+		            <button id="save-btn">Save</button>
+		            <button id="undo-btn">Undo</button>
+		            <button id="clear-btn">Clear</button>
+		            <input type="color" id="color-picker">
+		            <input type="range" id="brush-size" min="1" max="50" value="10">
+		        </div>
+				<canvas class="canvas" width="700" id="draw"></canvas>
+			</div>
+
+
+
+			<div class="col-md-4">
+				<div class="well">
+					<h3>Online Users</h3>
+					<ul class="list-group" id="users"></ul>
+				</div>
+			</div>
+
+			
+
+
+				<form id="messageForm">
+					<div class="form-group">
+
+						<label>Enter Message</label>
+
+						<textarea class="form-control" id="message"></textarea>
+
+						<br>
+
+						<input type="submit" class="btn btn-primary" value="Send Message">
+
+
+					</div>
+				</form>
+
+				<div class="col-md-12">
+					<div class="chat" id="chat"></div>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.slim.js"></script>
+   	<script src="http://code.jquery.com/jquery-3.3.1.slim.js" integrity="sha256-fNXJFIlca05BIO2Y5zh1xrShK3ME+/lYZ0j+ChxX2DA=" crossorigin="anonymous"></script>
+	
+
+	<script>
+$(document).ready(function(){
+var canvas, ctx,
+    brush = {
+        x: 0,
+        y: 0,
+        color: '#000000',
+        size: 10,
+        down: false,
+    },
+    strokes = [],
+    currentStroke = null;
+
+function redraw () {
+    ctx.clearRect(0, 0, canvas.width(), canvas.height());
+    ctx.lineCap = 'round';
+    for (var i = 0; i < strokes.length; i++) {
+        var s = strokes[i];
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = s.size;
+        ctx.beginPath();
+        ctx.moveTo(s.points[0].x, s.points[0].y);
+        for (var j = 0; j < s.points.length; j++) {
+            var p = s.points[j];
+            ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+    }
+}
+
+function init () {
+    canvas = $('#draw');
+    ctx = canvas[0].getContext('2d');
+
+    function mouseEvent (e) {
+    	
+        brush.x = e.offsetX;
+        brush.y = e.offsetY;
+
+        currentStroke.points.push({
+            x: brush.x,
+            y: brush.y,
+        });
+
+        
+
+        redraw();
+    }
+
+    canvas.mousedown(function (e) {
+        brush.down = true;
+
+        currentStroke = {
+            color: brush.color,
+            size: brush.size,
+            points: [],
+        };
+
+        strokes.push(currentStroke);
+
+        // console.log(strokes)
+
+        
+
+        mouseEvent(e);
+    }).mouseup(function (e) {
+
+    	socket.emit("new line", currentStroke, function(data){
+			console.log(data);
+		})
+    	
+
+        brush.down = false;
+
+        mouseEvent(e);
+
+        currentStroke = null;
+    }).mousemove(function (e) {
+        if (brush.down)
+            mouseEvent(e);
+    });
+
+    $('#save-btn').click(function () {
+        window.open(canvas[0].toDataURL());
+    });
+
+    $('#undo-btn').click(function () {
+        strokes.pop();
+        redraw();
+    });
+
+    $('#clear-btn').click(function () {
+        strokes = [];
+        redraw();
+    });
+
+    $('#color-picker').on('input', function () {
+        brush.color = this.value;
+    });
+
+    $('#brush-size').on('input', function () {
+        brush.size = this.value;
+    });
+}
+
+$(init);
+
+
+	
+	var socket = io.connect();
+	var messageForm = $("#messageForm")
+	var message = $("#message")
+	var chat = $("#chat")
+	var userForm = $("#userForm")
+	var userFormArea = $("#userFormArea")
+	var messageArea = $("#messageArea")
+	var users = $("#users")
+	var username = $("#username")
+
+	messageForm.submit(function(e){
+		e.preventDefault();
+		socket.emit("send message", message.val().trim());
+		message.val("")
+	})
+
+	userForm.submit(function(e){
+		e.preventDefault();
+		socket.emit("new user", username.val().trim(), function(data){
+			if (data) {
+				userFormArea.css("display", "none");
+				messageArea.show("display", "block");
+			}
+
+		});
+		username.val("")
+	})
+
+
+	socket.on("new message", function(data){
+		chat.prepend("<div class='well'>" + data.msg + "</div>")
+	})
+
+	socket.on("get users", function(data){
+		var html = ""
+		for (var i = 0; i < data.length; i++) {
+			html += "<li class='list-group-item'>" + data[i] + "</li>"
+		}
+
+		users.html(html)
+	})
+
+	socket.on("send line", function(data){
+
+		strokes.push(data.line)
+		// console.log(data)
+		// console.log(strokes)
+
+		redraw();
+
+
+	})
+
+	
+
+	
+	
+
+
+
+})
+
+</script>
+
+</body>
+
+
+
+</html>
