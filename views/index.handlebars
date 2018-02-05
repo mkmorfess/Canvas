@@ -1,10 +1,17 @@
+<div class="layer">
 
+	<div class="col-md-12">
+
+		<h1 class="text-center">Web Canvas</h1>
+
+	</div>
 
 	<div class="container">
 		<div class="row" id="userFormArea">
-			<div class="col-md-12">
-
-
+			
+			<div class="col-md-3">
+			</div>
+			<div class="col-md-6">
 				<form id="userForm">
 					<div class="form-group">
 
@@ -21,43 +28,45 @@
 
 
 			</div>
+			<div class="col-md-3">
+			</div>
 		</div>
 	</div>
-	
+	<div class="container-fluid">
 		<div class="row" id="messageArea">
 
 
 
 
-			<div class="col-md-9" id="theCanvas">
+			<div class="col-md-12" id="theCanvas">
 				<div class="top-bar">
-			        <button id="save-btn">Save</button>
-			        <button id="undo-btn">Undo</button>
-			        <button id="clear-btn">Clear</button>
+			        <button id="save-btn" class="btn btn-primary">Save</button>
+			        <button id="undo-btn" class="btn btn-warning">Undo</button>
+			        <button id="clear-btn" class="btn btn-danger">Clear</button>
 			        <input type="color" id="color-picker">
 			        <input type="range" id="brush-size" min="1" max="50" value="10">
 			    </div>
-				<canvas class="canvas" width="800" height="600" id="draw"></canvas>
+				<canvas class="canvas" width="800" height="200" id="draw"></canvas>
 			</div>
 
 
-
-			<div class="col-md-3">
-				<div class="well">
+		
+			<div class="col-md-2">
+				<div class="well userSection">
 					<h3>Users</h3>
 					<ul class="list-group" id="users"></ul>
 				</div>
 			</div>
 
 
-
+			<div class="col-md-3">
 
 			<form id="messageForm">
 				<div class="form-group">
 
 					<label>Enter Message</label>
 
-					<textarea class="form-control" id="message"></textarea>
+					<input class="form-control" id="message">
 
 					<br>
 
@@ -67,7 +76,9 @@
 				</div>
 			</form>
 
-			<div class="col-md-12">
+			</div>
+
+			<div class="col-md-7">
 				<div class="chat" id="chat"></div>
 			</div>
 
@@ -75,3 +86,6 @@
 	
 		
 	</div>
+</div>
+</div>
+</div>

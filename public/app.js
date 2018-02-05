@@ -31,7 +31,9 @@ function init () {
     canvas = $('#draw');
     ctx = canvas[0].getContext('2d');
     canvas[0].width = 800
-    canvas[0].height = 600
+    canvas[0].height = 200
+    canvas[0].style.width = 800
+    canvas[0].style.height = 200;
 
     function mouseEvent (e) {
     	
