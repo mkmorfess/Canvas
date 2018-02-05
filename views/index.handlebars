@@ -1,0 +1,78 @@
+
+
+	<div class="container">
+		<div class="row" id="userFormArea">
+			<div class="col-md-12">
+
+
+				<form id="userForm">
+					<div class="form-group">
+
+						<label>Enter Username</label>
+
+						<input class="form-control" id="username">
+						<br>
+
+						<input type="submit" class="btn btn-primary" value="Login">
+
+
+					</div>
+				</form>
+
+
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="row" id="messageArea">
+
+
+
+
+			<div class="col-md-9" id="theCanvas">
+				<div class="top-bar">
+			        <button id="save-btn">Save</button>
+			        <button id="undo-btn">Undo</button>
+			        <button id="clear-btn">Clear</button>
+			        <input type="color" id="color-picker">
+			        <input type="range" id="brush-size" min="1" max="50" value="10">
+			    </div>
+				<canvas class="canvas" width="1500" height="500" id="draw"></canvas>
+			</div>
+
+
+
+			<div class="col-md-3">
+				<div class="well">
+					<h3>Users</h3>
+					<ul class="list-group" id="users"></ul>
+				</div>
+			</div>
+
+
+
+
+			<form id="messageForm">
+				<div class="form-group">
+
+					<label>Enter Message</label>
+
+					<textarea class="form-control" id="message"></textarea>
+
+					<br>
+
+					<input type="submit" class="btn btn-primary" value="Send Message">
+
+
+				</div>
+			</form>
+
+			<div class="col-md-12">
+				<div class="chat" id="chat"></div>
+			</div>
+
+
+	
+		
+	</div>
+</div>

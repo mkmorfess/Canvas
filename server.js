@@ -2,6 +2,8 @@ var express = require("express");
 var app = express();
 var server = require("http").createServer(app);
 var io = require("socket.io").listen(server);
+var exphbs  = require('express-handlebars');
+var routes = require("./routes/htmlRoutes.js")
 
 var users = [];
 var connections = [];
@@ -10,9 +12,11 @@ server.listen(process.env.PORT || 3000, function(){
 	console.log("Server Running")
 });
 
-app.get("/", function(req, res) {
-	res.sendFile(__dirname + "/index.html")
-})
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+
+app.use(express.static('public'))
+app.use("/", routes)
 
 io.sockets.on("connection", function(socket){
 
@@ -42,6 +46,11 @@ io.sockets.on("connection", function(socket){
 	socket.on("new line", function(data) {
 		console.log(data)
 		io.sockets.emit("send line", {line: data})
+	})
+
+	socket.on("clear line", function(data) {
+		console.log(data)
+		io.sockets.emit("cleared line")
 	})
 
 

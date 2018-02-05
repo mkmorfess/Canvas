@@ -1,129 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Canvas App</title>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.cs
-	s" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
-
-	<style>
-
-	.top-bar {
-	    display: flex;
-	    flex-direction: row;
-	    background-color: #3af;
-	    border-bottom: 2px solid black;
-	    position: relative;
-	    width: 100%;
-	}
-
-	.top-bar * {
-	    margin: 5px 10px;
-	}
-
-	#draw {
-	    display: block;
-	}
-	
-	body {
-		margin-top: 30px;
-	}
-
-	#messageArea {
-		display: none;
-	}
-
-	canvas {
-		border: 1px solid black;
-	}
-
-
-
-	</style>
-</head>
-<body>
-	<div class="container-fluid">
-		<div class="row" id="userFormArea">
-			<div class="col-md-12">
-
-
-				<form id="userForm">
-					<div class="form-group">
-
-						<label>Enter Username</label>
-
-						<input class="form-control" id="username">
-						<br>
-
-						<input type="submit" class="btn btn-primary" value="Login">
-
-
-					</div>
-				</form>
-
-
-			</div>
-
-
-
-		</div>
-		<div class="row" id="messageArea">
-
-		
-
-
-			<div class="col-md-8 container">
-				<div class="top-bar">
-		            <button id="save-btn">Save</button>
-		            <button id="undo-btn">Undo</button>
-		            <button id="clear-btn">Clear</button>
-		            <input type="color" id="color-picker">
-		            <input type="range" id="brush-size" min="1" max="50" value="10">
-		        </div>
-				<canvas class="canvas" width="700" id="draw"></canvas>
-			</div>
-
-
-
-			<div class="col-md-4">
-				<div class="well">
-					<h3>Online Users</h3>
-					<ul class="list-group" id="users"></ul>
-				</div>
-			</div>
-
-			
-
-
-				<form id="messageForm">
-					<div class="form-group">
-
-						<label>Enter Message</label>
-
-						<textarea class="form-control" id="message"></textarea>
-
-						<br>
-
-						<input type="submit" class="btn btn-primary" value="Send Message">
-
-
-					</div>
-				</form>
-
-				<div class="col-md-12">
-					<div class="chat" id="chat"></div>
-				</div>
-
-
-			</div>
-		</div>
-	</div>
-
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.slim.js"></script>
-   	<script src="http://code.jquery.com/jquery-3.3.1.slim.js" integrity="sha256-fNXJFIlca05BIO2Y5zh1xrShK3ME+/lYZ0j+ChxX2DA=" crossorigin="anonymous"></script>
-	
-
-	<script>
 $(document).ready(function(){
 var canvas, ctx,
     brush = {
@@ -159,8 +33,8 @@ function init () {
 
     function mouseEvent (e) {
     	
-        brush.x = e.offsetX;
-        brush.y = e.offsetY;
+        brush.x = e.offsetX - $('#theCanvas').offset().left + $(window).scrollLeft();
+        brush.y = e.offsetY - $('#theCanvas').offset().top + $(window).scrollTop();
 
         currentStroke.points.push({
             x: brush.x,
@@ -173,6 +47,7 @@ function init () {
     }
 
     canvas.mousedown(function (e) {
+        console.log(e)
         brush.down = true;
 
         currentStroke = {
@@ -215,8 +90,10 @@ function init () {
     });
 
     $('#clear-btn').click(function () {
-        strokes = [];
-        redraw();
+    	socket.emit("clear line", strokes, function(data){
+    		strokes = [];
+        	redraw();
+    	})
     });
 
     $('#color-picker').on('input', function () {
@@ -251,18 +128,20 @@ $(init);
 	userForm.submit(function(e){
 		e.preventDefault();
 		socket.emit("new user", username.val().trim(), function(data){
+			
 			if (data) {
 				userFormArea.css("display", "none");
 				messageArea.show("display", "block");
+				$("#message").attr("data-name", username.val().trim())
 			}
 
 		});
-		username.val("")
+		// username.val("")
 	})
 
 
 	socket.on("new message", function(data){
-		chat.prepend("<div class='well'>" + data.msg + "</div>")
+		chat.prepend("<div class='well'>" + $("#message").attr("data-name") + ": "  + data.msg + "</div>")
 	})
 
 	socket.on("get users", function(data){
@@ -275,10 +154,23 @@ $(init);
 	})
 
 	socket.on("send line", function(data){
-
+		
 		strokes.push(data.line)
+		
 		// console.log(data)
-		// console.log(strokes)
+		console.log(strokes)
+
+		redraw();
+
+
+	})
+
+	socket.on("cleared line", function(data){
+		
+		strokes = [];
+		
+		// console.log(data)
+		console.log(strokes)
 
 		redraw();
 
@@ -293,11 +185,3 @@ $(init);
 
 
 })
-
-</script>
-
-</body>
-
-
-
-</html>
