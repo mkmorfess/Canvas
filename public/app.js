@@ -33,8 +33,8 @@ function init () {
 
     function mouseEvent (e) {
     	
-        brush.x = e.offsetX - $('#theCanvas').offset().left + $(window).scrollLeft();
-        brush.y = e.offsetY - $('#theCanvas').offset().top + $(window).scrollTop();
+        brush.x = e.pageX;
+        brush.y = e.pageY;
 
         currentStroke.points.push({
             x: brush.x,
