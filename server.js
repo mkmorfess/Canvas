@@ -7,6 +7,7 @@ var routes = require("./routes/htmlRoutes.js")
 
 var users = [];
 var connections = [];
+var strokes = [];
 
 server.listen(process.env.PORT || 3000, function(){
 	console.log("Server Running")
@@ -39,23 +40,46 @@ io.sockets.on("connection", function(socket){
 	socket.on("new user", function(data, cb){
 		cb(true)
 		socket.username = data;
-		users.push(socket.username)
-		updateUsernames();
+		if (users.includes(socket.username)) {
+			var random = Math.floor(Math.random() * 100000)
+			socket.username += random.toString()
+			users.push(socket.username)
+			updateUsernames();
+			if (strokes.length > 0) {
+				socket.emit("get drawing", {line: strokes})
+			}
+
+		} else {
+			users.push(socket.username)
+			updateUsernames();
+			if (strokes.length > 0) {
+				socket.emit("get drawing", {line: strokes})
+			}
+
+		}
 	})
 
+
+
 	socket.on("new line", function(data) {
-		console.log(data)
-		io.sockets.emit("send line", {line: data})
+		// console.log(data)
+		strokes.push(data)
+		// console.log(strokes)
+		io.sockets.emit("send line", {line: strokes})
 	})
+
+
 
 	socket.on("clear line", function(data) {
 		console.log(data)
+		strokes = [];
 		io.sockets.emit("cleared line")
 	})
 
-
-	function updateUsernames() {
-
-		io.sockets.emit("get users" , users);
-	}
 })
+
+function updateUsernames() {
+
+	io.sockets.emit("get users" , users);
+
+}

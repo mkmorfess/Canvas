@@ -37,8 +37,8 @@ function init () {
 
     function mouseEvent (e) {
     	
-        brush.x = e.pageX;
-        brush.y = e.pageY;
+        brush.x = e.offsetX;
+        brush.y = e.offsetY;
 
         console.log(brush.x)
         console.log(brush.y)
@@ -128,8 +128,18 @@ $(init);
 
 	messageForm.submit(function(e){
 		e.preventDefault();
-		socket.emit("send message", message.val().trim());
-		message.val("")
+
+        if (message.val().trim() === "") {
+            message.val("")
+        } else {
+		  socket.emit("send message", $("#message").attr("data-name") + ": " + message.val().trim(), function(data){
+                
+          });
+
+
+          message.val("")
+		  
+        }
 	})
 
 	userForm.submit(function(e){
@@ -139,8 +149,18 @@ $(init);
 			if (data) {
 				userFormArea.css("display", "none");
 				messageArea.show("display", "block");
-				$("#message").attr("data-name", username.val().trim())
+                $("#message").attr("data-name", username.val().trim())
 			}
+
+            socket.on("get drawing", function(data){
+
+                for (var i = 0; i < data.line.length; i++) {
+                     strokes.push(data.line[i])
+                }
+
+                redraw();
+
+            })
 
 		});
 		// username.val("")
@@ -148,10 +168,13 @@ $(init);
 
 
 	socket.on("new message", function(data){
-		chat.prepend("<div class='well'>" + $("#message").attr("data-name") + ": "  + data.msg + "</div>")
+		chat.prepend("<div class='well'>"+ data.msg + "</div>")
 	})
 
+
+
 	socket.on("get users", function(data){
+        
 		var html = ""
 		for (var i = 0; i < data.length; i++) {
 			html += "<li class='list-group-item'>" + data[i] + "</li>"
@@ -161,13 +184,16 @@ $(init);
 	})
 
 	socket.on("send line", function(data){
-		
-		strokes.push(data.line)
-		
-		// console.log(data)
-		console.log(strokes)
+
+        console.log(data.line[0])
+		for (var i = 0; i < data.line.length; i++) {
+             var newStroke = data.line[i]
+             strokes.push(newStroke)
+             console.log(strokes)
+        }
 
 		redraw();
+        console.log(strokes)
 
 
 	})
