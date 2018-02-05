@@ -71,7 +71,6 @@ io.sockets.on("connection", function(socket){
 
 
 	socket.on("clear line", function(data) {
-		console.log(data)
 		strokes = [];
 		io.sockets.emit("cleared line")
 	})
