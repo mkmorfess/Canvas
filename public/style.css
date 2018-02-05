@@ -30,6 +30,13 @@
 	canvas {
 		border: 1px solid black;
 		background: white;
+	    top: 0;
+	    left: 0;
+	    box-shadow: 2px, 2px, 2px, black;
+    
+    /*width: 500px;
+    height: 200px;*/
+
 	}
 
 	/*.layer {

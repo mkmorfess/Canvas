@@ -30,11 +30,16 @@ function redraw () {
 function init () {
     canvas = $('#draw');
     ctx = canvas[0].getContext('2d');
+    canvas[0].width = 800
+    canvas[0].height = 600
 
     function mouseEvent (e) {
     	
         brush.x = e.pageX;
         brush.y = e.pageY;
+
+        console.log(brush.x)
+        console.log(brush.y)
 
         currentStroke.points.push({
             x: brush.x,
