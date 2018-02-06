@@ -30,10 +30,41 @@ function redraw () {
 function init () {
     canvas = $('#draw');
     ctx = canvas[0].getContext('2d');
-    canvas[0].width = 800
-    canvas[0].height = 200
-    canvas[0].style.width = 800
-    canvas[0].style.height = 200;
+
+    if ($(window).width() > 1200) {
+
+        canvas[0].width = 1135
+        canvas[0].height = 555
+        canvas[0].style.width = 1135    
+        canvas[0].style.height = 555;
+   
+    }
+
+    else if ($(window).width() <= 1200 && $(window).width() > 991) {
+
+        canvas[0].width = 935
+        canvas[0].height = 460
+        canvas[0].style.width = 935    
+        canvas[0].style.height = 460;
+   
+    }
+
+    else if ($(window).width() <= 991) {
+
+        canvas[0].width = 720
+        canvas[0].height = 355
+        canvas[0].style.width = 720   
+        canvas[0].style.height = 355;
+
+    }
+
+
+    else {
+
+    }
+
+        
+    
 
     function mouseEvent (e) {
     	
