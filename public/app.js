@@ -9,6 +9,8 @@ var userFormArea = $("#userFormArea")
 var messageArea = $("#messageArea")
 var users = $("#users")
 var username = $("#username")
+var contHeight;
+var contWidth;
 
 var canvas, ctx,
     brush = {
@@ -19,97 +21,24 @@ var canvas, ctx,
         down: false,
     },
     strokes = [],
-    smallStrokes = [],
-    smallerStrokes = [],
     currentStroke = null;
 
 function redraw () {
 
-     if ($(window).width() > 1200) {
+     
 
         canvas[0].width = 1135
         canvas[0].height = 555
-        canvas[0].style.width = 1135    
-        canvas[0].style.height = 555;
 
-         ctx.clearRect(0, 0, canvas.width(), canvas.height());
-            ctx.lineCap = 'round';
-        for (var i = 0; i < strokes.length; i++) {
-            var s = strokes[i];
-            ctx.strokeStyle = s.color;
-            ctx.lineWidth = s.size;
-            ctx.beginPath();
-            ctx.moveTo(s.points[0].x, s.points[0].y);
-            for (var j = 0; j < s.points.length; j++) {
-                var p = s.points[j];
-                ctx.lineTo(p.x, p.y);
-            }
-            ctx.stroke();
-        }
-        
-   
-    }
-
-    else if ($(window).width() <= 1200 && $(window).width() > 991) {
-
-        canvas[0].width = 935
-        canvas[0].height = 460
-        canvas[0].style.width = 935    
-        canvas[0].style.height = 460;
-
-        ctx.clearRect(0, 0, canvas.width(), canvas.height());
-            ctx.lineCap = 'round';
-        for (var i = 0; i < smallStrokes.length; i++) {
-            var s = smallStrokes[i];
-            ctx.strokeStyle = s.color;
-            ctx.lineWidth = s.size;
-            ctx.beginPath();
-            ctx.moveTo(s.points[0].x, s.points[0].y);
-            for (var j = 0; j < s.points.length; j++) {
-                var p = s.points[j];
-                ctx.lineTo(p.x, p.y);
-            }
-            ctx.stroke();
-        }
-
-
-        
-   
-    }
-
-    else if ($(window).width() <= 991 && $(window).width() > 767) {
-
-        canvas[0].width = 720
-        canvas[0].height = 355
-        canvas[0].style.width = 720   
-        canvas[0].style.height = 355;
-
-        ctx.clearRect(0, 0, canvas.width(), canvas.height());
-            ctx.lineCap = 'round';
-        for (var i = 0; i < smallerStrokes.length; i++) {
-            var s = smallerStrokes[i];
-            ctx.strokeStyle = s.color;
-            ctx.lineWidth = s.size;
-            ctx.beginPath();
-            ctx.moveTo(s.points[0].x, s.points[0].y);
-            for (var j = 0; j < s.points.length; j++) {
-                var p = s.points[j];
-                ctx.lineTo(p.x, p.y);
-            }
-            ctx.stroke();
-        }
-        
-
-    }
-
-    else {
-        
-    }
 
     ctx.clearRect(0, 0, canvas.width(), canvas.height());
             ctx.lineCap = 'round';
         for (var i = 0; i < strokes.length; i++) {
             var s = strokes[i];
+
+            if (s.color === null) {
+               s.color = "#000000" 
+            }
             ctx.strokeStyle = s.color;
             ctx.lineWidth = s.size;
             ctx.beginPath();
@@ -126,45 +55,25 @@ function init () {
     canvas = $('#draw');
     ctx = canvas[0].getContext('2d');
 
-    if ($(window).width() > 1200) {
-
-        canvas[0].width = 1135
-        canvas[0].height = 555
-        canvas[0].style.width = 1135    
-        canvas[0].style.height = 555;
-   
-    }
-
-    else if ($(window).width() <= 1200 && $(window).width() > 991) {
-
-        canvas[0].width = 935
-        canvas[0].height = 460
-        canvas[0].style.width = 935    
-        canvas[0].style.height = 460;
-   
-    }
-
-    else if ($(window).width() <= 991) {
-
-        canvas[0].width = 720
-        canvas[0].height = 355
-        canvas[0].style.width = 720   
-        canvas[0].style.height = 355;
-
-    }
-
-
-    else {
-
-    }
-
-        
     
+
 
     function mouseEvent (e) {
     	
-        brush.x = e.offsetX;
-        brush.y = e.offsetY;
+        contHeight = $(".messageContainer").css("width")
+        contWidth = $(".messageContainer").css("height")
+
+        contHeight = contHeight.replace(/\px/g, '');
+        contWidth = contWidth.replace(/\px/g, '');
+        
+        
+       
+
+        brush.x = e.offsetX  * canvas[0].width / contHeight;
+        brush.y = e.offsetY * canvas[0].height / contWidth;
+        
+   
+       
 
         // console.log(brush.x)
         // console.log(brush.y)
@@ -301,28 +210,13 @@ $(init);
 
 	socket.on("send line", function(data){
 
-        console.log(data.smallLine)
         strokes = [];
-        smallStrokes = [];
-        smallerStrokes = [];
+        
 		for (var i = 0; i < data.line.length; i++) {
              var newStroke = data.line[i]
              strokes.push(newStroke)
              // console.log(strokes)
         }
-
-
-        for (i = 0; i < data.smallLine.length; i++) {
-            smallStrokes.push(data.smallLine[i])
-        }
-
-        for (i = 0; i < data.smallerLine.length; i++) {
-            smallerStrokes.push(data.smallerLine[i])
-        }
-
-                console.log(strokes);
-                console.log(smallStrokes);
-                console.log(smallerStrokes);
 
 		redraw();
         // console.log(strokes)
