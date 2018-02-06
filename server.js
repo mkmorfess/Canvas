@@ -8,6 +8,8 @@ var routes = require("./routes/htmlRoutes.js")
 var users = [];
 var connections = [];
 var strokes = [];
+var smallStrokes = [];
+var smallerStrokes = [];
 
 server.listen(process.env.PORT || 3000, function(){
 	console.log("Server Running")
@@ -62,10 +64,29 @@ io.sockets.on("connection", function(socket){
 
 
 	socket.on("new line", function(data) {
-		// console.log(data)
+		
 		strokes.push(data)
-		// console.log(strokes)
-		io.sockets.emit("send line", {line: strokes})
+		console.log("The Strokes: " + strokes);
+
+		smallerStrokes = []
+		smallStrokes = [];
+    	for (var i = 0; i < strokes.length; i++) {
+    		smallStrokes.push({color: strokes[i].color, size: strokes[i].size, points: []})
+			smallerStrokes.push({color: strokes[i].color, size: strokes[i].size, points: []})
+            
+            for (var j = 0; j < strokes[i].points.length; j++) {
+            	smallStrokes[i].points.push({x: strokes[i].points[j].x * 935 / 1135, y: strokes[i].points[j].y * 400 / 555})
+            	smallerStrokes[i].points.push({x: strokes[i].points[j].x * 720 / 1135, y: strokes[i].points[j].y * 355 / 555})
+               
+            }
+        }
+
+    	
+        console.log("The small Strokes: " + smallStrokes)
+        console.log("The smaller Strokes: " + smallerStrokes)
+
+
+		io.sockets.emit("send line", {line: strokes, smallLine: smallStrokes, smallerLine: smallerStrokes})
 	})
 
 

@@ -19,10 +19,11 @@ var canvas, ctx,
         down: false,
     },
     strokes = [],
+    smallStrokes = [],
+    smallerStrokes = [],
     currentStroke = null;
 
 function redraw () {
-    console.log(strokes)
 
      if ($(window).width() > 1200) {
 
@@ -31,20 +32,20 @@ function redraw () {
         canvas[0].style.width = 1135    
         canvas[0].style.height = 555;
 
-        ctx.clearRect(0, 0, canvas.width(), canvas.height());
-        ctx.lineCap = 'round';
-    for (var i = 0; i < strokes.length; i++) {
-        var s = strokes[i];
-        ctx.strokeStyle = s.color;
-        ctx.lineWidth = s.size;
-        ctx.beginPath();
-        ctx.moveTo(s.points[0].x, s.points[0].y);
-        for (var j = 0; j < s.points.length; j++) {
-            var p = s.points[j];
-            ctx.lineTo(p.x, p.y);
+         ctx.clearRect(0, 0, canvas.width(), canvas.height());
+            ctx.lineCap = 'round';
+        for (var i = 0; i < strokes.length; i++) {
+            var s = strokes[i];
+            ctx.strokeStyle = s.color;
+            ctx.lineWidth = s.size;
+            ctx.beginPath();
+            ctx.moveTo(s.points[0].x, s.points[0].y);
+            for (var j = 0; j < s.points.length; j++) {
+                var p = s.points[j];
+                ctx.lineTo(p.x, p.y);
+            }
+            ctx.stroke();
         }
-        ctx.stroke();
-    }
         
    
     }
@@ -52,33 +53,26 @@ function redraw () {
     else if ($(window).width() <= 1200 && $(window).width() > 991) {
 
         canvas[0].width = 935
-        canvas[0].height = 400
+        canvas[0].height = 460
         canvas[0].style.width = 935    
-        canvas[0].style.height = 400;
-        var theStrokes = [];
+        canvas[0].style.height = 460;
 
-        if (strokes.length > 0) {
-            for (var i = 0; i < strokes.length; i++) {
-                theStrokes.push({"color": strokes[i].color, size: strokes[i].size, points: []})
-                for (var j = 0; j < strokes[i].points.length; j++) {
-                    theStrokes[i].points.push({x: strokes[i].points[j].x * canvas[0].width / 1135, y: strokes[i].points[j].y * canvas[0].height / 555})
-                }
-            }
-            ctx.clearRect(0, 0, canvas.width(), canvas.height());
+        ctx.clearRect(0, 0, canvas.width(), canvas.height());
             ctx.lineCap = 'round';
-        for (var i = 0; i < theStrokes.length; i++) {
-            var s = theStrokes[i];
+        for (var i = 0; i < smallStrokes.length; i++) {
+            var s = smallStrokes[i];
             ctx.strokeStyle = s.color;
             ctx.lineWidth = s.size;
             ctx.beginPath();
             ctx.moveTo(s.points[0].x, s.points[0].y);
-        for (var j = 0; j < s.points.length; j++) {
-            var p = s.points[j];
-            ctx.lineTo(p.x, p.y);
+            for (var j = 0; j < s.points.length; j++) {
+                var p = s.points[j];
+                ctx.lineTo(p.x, p.y);
+            }
+            ctx.stroke();
         }
-        ctx.stroke();
-    }
-        }
+
+
         
    
     }
@@ -89,6 +83,21 @@ function redraw () {
         canvas[0].height = 355
         canvas[0].style.width = 720   
         canvas[0].style.height = 355;
+
+        ctx.clearRect(0, 0, canvas.width(), canvas.height());
+            ctx.lineCap = 'round';
+        for (var i = 0; i < smallerStrokes.length; i++) {
+            var s = smallerStrokes[i];
+            ctx.strokeStyle = s.color;
+            ctx.lineWidth = s.size;
+            ctx.beginPath();
+            ctx.moveTo(s.points[0].x, s.points[0].y);
+            for (var j = 0; j < s.points.length; j++) {
+                var p = s.points[j];
+                ctx.lineTo(p.x, p.y);
+            }
+            ctx.stroke();
+        }
         
 
     }
@@ -97,44 +106,57 @@ function redraw () {
         
     }
 
-    
+    ctx.clearRect(0, 0, canvas.width(), canvas.height());
+            ctx.lineCap = 'round';
+        for (var i = 0; i < strokes.length; i++) {
+            var s = strokes[i];
+            ctx.strokeStyle = s.color;
+            ctx.lineWidth = s.size;
+            ctx.beginPath();
+            ctx.moveTo(s.points[0].x, s.points[0].y);
+            for (var j = 0; j < s.points.length; j++) {
+                var p = s.points[j];
+                ctx.lineTo(p.x, p.y);
+            }
+            ctx.stroke();
+        }
 }
 
 function init () {
     canvas = $('#draw');
     ctx = canvas[0].getContext('2d');
 
-    // if ($(window).width() > 1200) {
+    if ($(window).width() > 1200) {
 
-    //     canvas[0].width = 1135
-    //     canvas[0].height = 555
-    //     canvas[0].style.width = 1135    
-    //     canvas[0].style.height = 555;
+        canvas[0].width = 1135
+        canvas[0].height = 555
+        canvas[0].style.width = 1135    
+        canvas[0].style.height = 555;
    
-    // }
+    }
 
-    // else if ($(window).width() <= 1200 && $(window).width() > 991) {
+    else if ($(window).width() <= 1200 && $(window).width() > 991) {
 
-    //     canvas[0].width = 935
-    //     canvas[0].height = 460
-    //     canvas[0].style.width = 935    
-    //     canvas[0].style.height = 460;
+        canvas[0].width = 935
+        canvas[0].height = 460
+        canvas[0].style.width = 935    
+        canvas[0].style.height = 460;
    
-    // }
+    }
 
-    // else if ($(window).width() <= 991) {
+    else if ($(window).width() <= 991) {
 
-    //     canvas[0].width = 720
-    //     canvas[0].height = 355
-    //     canvas[0].style.width = 720   
-    //     canvas[0].style.height = 355;
+        canvas[0].width = 720
+        canvas[0].height = 355
+        canvas[0].style.width = 720   
+        canvas[0].style.height = 355;
 
-    // }
+    }
 
 
-    // else {
+    else {
 
-    // }
+    }
 
         
     
@@ -279,13 +301,28 @@ $(init);
 
 	socket.on("send line", function(data){
 
-        // console.log(data.line[0])
+        console.log(data.smallLine)
         strokes = [];
+        smallStrokes = [];
+        smallerStrokes = [];
 		for (var i = 0; i < data.line.length; i++) {
              var newStroke = data.line[i]
              strokes.push(newStroke)
              // console.log(strokes)
         }
+
+
+        for (i = 0; i < data.smallLine.length; i++) {
+            smallStrokes.push(data.smallLine[i])
+        }
+
+        for (i = 0; i < data.smallerLine.length; i++) {
+            smallerStrokes.push(data.smallerLine[i])
+        }
+
+                console.log(strokes);
+                console.log(smallStrokes);
+                console.log(smallerStrokes);
 
 		redraw();
         // console.log(strokes)
