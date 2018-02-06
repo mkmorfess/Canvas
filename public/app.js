@@ -12,6 +12,38 @@ var canvas, ctx,
 
 function redraw () {
 
+     if ($(window).width() > 1200) {
+
+        canvas[0].width = 1135
+        canvas[0].height = 555
+        canvas[0].style.width = 1135    
+        canvas[0].style.height = 555;
+   
+    }
+
+    else if ($(window).width() <= 1200 && $(window).width() > 991) {
+
+        canvas[0].width = 935
+        canvas[0].height = 460
+        canvas[0].style.width = 935    
+        canvas[0].style.height = 460;
+   
+    }
+
+    else if ($(window).width() <= 991) {
+
+        canvas[0].width = 720
+        canvas[0].height = 355
+        canvas[0].style.width = 720   
+        canvas[0].style.height = 355;
+
+    }
+
+
+    else {
+
+    }
+
     ctx.clearRect(0, 0, canvas.width(), canvas.height());
     ctx.lineCap = 'round';
     for (var i = 0; i < strokes.length; i++) {
@@ -72,8 +104,8 @@ function init () {
         brush.x = e.offsetX;
         brush.y = e.offsetY;
 
-        console.log(brush.x)
-        console.log(brush.y)
+        // console.log(brush.x)
+        // console.log(brush.y)
 
         currentStroke.points.push({
             x: brush.x,
@@ -86,7 +118,7 @@ function init () {
     }
 
     canvas.mousedown(function (e) {
-        console.log(e)
+        // console.log(e)
         brush.down = true;
 
         currentStroke = {
@@ -105,7 +137,7 @@ function init () {
     }).mouseup(function (e) {
 
     	socket.emit("new line", currentStroke, function(data){
-			console.log(data);
+			// console.log(data);
 		})
     	
 
@@ -226,7 +258,7 @@ $(init);
         }
 
 		redraw();
-        console.log(strokes)
+        // console.log(strokes)
 
 
 	})
@@ -236,7 +268,7 @@ $(init);
 		strokes = [];
 		
 		// console.log(data)
-		console.log(strokes)
+		// console.log(strokes)
 
 		redraw();
 
