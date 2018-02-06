@@ -11,6 +11,7 @@ var canvas, ctx,
     currentStroke = null;
 
 function redraw () {
+
     ctx.clearRect(0, 0, canvas.width(), canvas.height());
     ctx.lineCap = 'round';
     for (var i = 0; i < strokes.length; i++) {
@@ -216,11 +217,12 @@ $(init);
 
 	socket.on("send line", function(data){
 
-        console.log(data.line[0])
+        // console.log(data.line[0])
+        strokes = [];
 		for (var i = 0; i < data.line.length; i++) {
              var newStroke = data.line[i]
              strokes.push(newStroke)
-             console.log(strokes)
+             // console.log(strokes)
         }
 
 		redraw();
