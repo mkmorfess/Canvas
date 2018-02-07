@@ -25,6 +25,9 @@ var canvas, ctx,
 
 function redraw () {
 
+    canvas[0].width = 1135
+    canvas[0].height = 555
+
     ctx.clearRect(0, 0, canvas.width(), canvas.height());
             ctx.lineCap = 'round';
         for (var i = 0; i < strokes.length; i++) {
