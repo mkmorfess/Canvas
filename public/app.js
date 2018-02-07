@@ -12,16 +12,13 @@ var username = $("#username")
 var contHeight;
 var contWidth;
 
-var canvas, ctx,
-    brush = {
+var canvas, ctx, brush = {
         x: 0,
         y: 0,
         color: '#000000',
         size: 1,
-        down: false,
-    },
-    strokes = [],
-    currentStroke = null;
+        down: false
+    }, strokes = [], currentStroke = null;
 
 function redraw () {
 
@@ -49,15 +46,18 @@ function redraw () {
 }
 
 function init () {
-    canvas = $('#draw');
-    ctx = canvas[0].getContext('2d');
+        canvas = $('#draw');
+        ctx = canvas[0].getContext('2d');
 
-    canvas[0].width = 1135
-    canvas[0].height = 555
+        canvas[0].width = 1135
+        canvas[0].height = 555
+    
 
+if ($("#brush").attr("data-status") === "active") {
+    console.log("works")
 
     function mouseEvent (e) {
-        
+        console.log(e)
         
         contHeight = $(".messageContainer").css("width")
         contWidth = $(".messageContainer").css("height")
@@ -100,10 +100,10 @@ function init () {
         mouseEvent(e);
     }).mouseup(function (e) {
 
-    	socket.emit("new line", currentStroke, function(data){
-			// console.log(data);
-		})
-    	
+        socket.emit("new line", currentStroke, function(data){
+            // console.log(data);
+        })
+        
 
         brush.down = false;
 
@@ -115,33 +115,42 @@ function init () {
             mouseEvent(e);
     });
 
-    $('#save-btn').click(function () {
-        window.open(canvas[0].toDataURL());
-    });
+        $('#save-btn').click(function () {
+            window.open(canvas[0].toDataURL());
+        });
 
-    $('#undo-btn').click(function () {
-        strokes.pop();
-        redraw();
-    });
+        $('#undo-btn').click(function () {
+            strokes.pop();
+            redraw();
+        });
 
-    $('#clear-btn').click(function () {
-    	socket.emit("clear line", strokes, function(data){
-    		strokes = [];
-        	redraw();
-    	})
-    });
+        $('#clear-btn').click(function () {
+            socket.emit("clear line", strokes, function(data){
+                strokes = [];
+                redraw();
+            })
+        });
 
-    $('#color-picker').on('input', function () {
-        brush.color = this.value;
-    });
+        $('#color-picker').on('input', function () {
+            brush.color = this.value;
+        });
 
-    $('#brush-size').on('input', function () {
-        brush.size = this.value;
-    });
+        $('#brush-size').on('input', function () {
+            brush.size = this.value;
+        });
+
+        
+    }
+
 }
-
 $(init);
 
+    
+    $("#brush").on("click", function(){
+        $(this).attr("data-status", "active")
+        console.log($("#brush").attr("data-status"))
+        $(init);
+    })
 
 
 	messageForm.submit(function(e){
