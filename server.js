@@ -64,7 +64,7 @@ io.sockets.on("connection", function(socket){
 	socket.on("new line", function(data) {
 		
 		strokes.push(data)
-		
+		console.log(data)
 
 
 		io.sockets.emit("send line", {line: strokes})

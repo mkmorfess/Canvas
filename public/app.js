@@ -25,12 +25,6 @@ var canvas, ctx,
 
 function redraw () {
 
-     
-
-        canvas[0].width = 1135
-        canvas[0].height = 555
-
-
     ctx.clearRect(0, 0, canvas.width(), canvas.height());
             ctx.lineCap = 'round';
         for (var i = 0; i < strokes.length; i++) {
@@ -55,18 +49,17 @@ function init () {
     canvas = $('#draw');
     ctx = canvas[0].getContext('2d');
 
-    
+    canvas[0].width = 1135
+    canvas[0].height = 555
 
 
     function mouseEvent (e) {
-    	
+        
+        
         contHeight = $(".messageContainer").css("width")
         contWidth = $(".messageContainer").css("height")
-
         contHeight = contHeight.replace(/\px/g, '');
         contWidth = contWidth.replace(/\px/g, '');
-        
-        
        
 
         brush.x = e.offsetX  * canvas[0].width / contHeight;
@@ -74,9 +67,6 @@ function init () {
         
    
        
-
-        // console.log(brush.x)
-        // console.log(brush.y)
 
         currentStroke.points.push({
             x: brush.x,
