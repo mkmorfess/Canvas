@@ -13,14 +13,17 @@ var contHeight;
 var contWidth;
 
 var canvas, ctx, brush = {
-        x: 0,
-        y: 0,
-        color: '#000000',
-        size: 1,
-        down: false
-    }, strokes = [], currentStroke = null;
+            x: 0,
+            y: 0,
+            color: '#000000',
+            size: 1,
+            down: false
+        }, strokes = [], currentStroke = null;
 
 function redraw () {
+
+    canvas = $('#draw');
+    ctx = canvas[0].getContext('2d');
 
     canvas[0].width = 1135
     canvas[0].height = 555
@@ -30,9 +33,11 @@ function redraw () {
         for (var i = 0; i < strokes.length; i++) {
             var s = strokes[i];
 
-            if (s.color === null) {
-               s.color = "#000000" 
-            }
+            // if (s.color === null) {
+            //    s.color = "#000000" 
+            // }
+
+            console.log(s.color)
             ctx.strokeStyle = s.color;
             ctx.lineWidth = s.size;
             ctx.beginPath();
@@ -54,10 +59,9 @@ function init () {
     
 
 if ($("#brush").attr("data-status") === "active") {
-    console.log("works")
 
     function mouseEvent (e) {
-        console.log(e)
+        
         
         contHeight = $(".messageContainer").css("width")
         contWidth = $(".messageContainer").css("height")
@@ -82,6 +86,7 @@ if ($("#brush").attr("data-status") === "active") {
     }
 
     canvas.mousedown(function (e) {
+        
         // console.log(e)
         brush.down = true;
 
@@ -93,13 +98,14 @@ if ($("#brush").attr("data-status") === "active") {
 
         strokes.push(currentStroke);
 
-        // console.log(strokes)
+        console.log("Current: " + currentStroke)
+        console.log(strokes)
 
         
 
         mouseEvent(e);
     }).mouseup(function (e) {
-
+        
         socket.emit("new line", currentStroke, function(data){
             // console.log(data);
         })
@@ -113,7 +119,7 @@ if ($("#brush").attr("data-status") === "active") {
     }).mousemove(function (e) {
         if (brush.down)
             mouseEvent(e);
-    });
+    })
 
         $('#save-btn').click(function () {
             window.open(canvas[0].toDataURL());
@@ -144,12 +150,12 @@ if ($("#brush").attr("data-status") === "active") {
 
 }
 $(init);
-
-    
     $("#brush").on("click", function(){
         $(this).attr("data-status", "active")
         console.log($("#brush").attr("data-status"))
-        $(init);
+        
+
+        redraw();
     })
 
 
