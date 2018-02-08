@@ -148,31 +148,6 @@ if ($("#line").attr("data-status") === "active") {
             }
         })
 
-        $('#save-btn').click(function () {
-            window.open(canvas[0].toDataURL());
-        });
-
-        $('#undo-btn').click(function () {
-            strokes.pop();
-            redraw();
-        });
-
-        $('#clear-btn').click(function () {
-            socket.emit("clear line", strokes, function(data){
-                strokes = [];
-                redraw();
-            })
-        });
-
-        $('#color-picker').on('input', function () {
-            brush.color = this.value;
-            line.color = this.value;
-        });
-
-        $('#brush-size').on('input', function () {
-            brush.size = this.value;
-            line.color = this.value
-        });
 }
 
     
@@ -244,6 +219,10 @@ else if ($("#brush").attr("data-status") === "active") {
             mouseEvent(e);
     })
 
+        
+    }
+
+
         $('#save-btn').click(function () {
             window.open(canvas[0].toDataURL());
         });
@@ -267,17 +246,8 @@ else if ($("#brush").attr("data-status") === "active") {
 
         $('#brush-size').on('input', function () {
             brush.size = this.value;
-            line.color = this.value;
+            line.color = this.value
         });
-
-        
-    }
-
-
-
-else {
-    // do nothing
-}
 }
 
 
