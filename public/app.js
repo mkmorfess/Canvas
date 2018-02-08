@@ -24,7 +24,7 @@ var canvas, ctx, line  = {
             color: '#000000',
             size: 1,
             down: false
-        }, strokes = [], currentStroke = null, currentLine = null;
+        }, strokes = [], currentStroke = {}, currentLine = {};
 
 function redraw () {
     // console.log(strokes)
@@ -33,6 +33,8 @@ function redraw () {
 
     canvas[0].width = 1135
     canvas[0].height = 555
+
+    
 
     ctx.clearRect(0, 0, canvas.width(), canvas.height());
             ctx.lineCap = 'round';
@@ -75,12 +77,14 @@ function init() {
     canvas[0].width = 1135
     canvas[0].height = 555
 
-
+    canvas.off().mouseup()
+    canvas.off().mousedown()
+    canvas.off().mousemove()
 
 if ($("#line").attr("data-status") === "active") {
     console.log("this is line")
     
-    currentStroke = null;
+    currentStroke = {};
         
         var twoPoints = false
             // console.log(twoPoints)
@@ -175,7 +179,7 @@ if ($("#line").attr("data-status") === "active") {
 
 else if ($("#brush").attr("data-status") === "active") {
     
-    currentLine = null;
+    currentLine = {};
     console.log("brush")
     
     function mouseEvent (e) {
