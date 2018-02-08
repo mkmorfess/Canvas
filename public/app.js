@@ -27,7 +27,7 @@ var canvas, ctx, line  = {
         }, strokes = [], currentStroke = null, currentLine = null;
 
 function redraw () {
-    console.log(strokes)
+    // console.log(strokes)
     canvas = $('#draw');
     ctx = canvas[0].getContext('2d');
 
@@ -45,7 +45,7 @@ function redraw () {
             // }
             if (s.type === "brush") {
 
-            console.log(s.color)
+            // console.log(s.color)
             ctx.strokeStyle = s.color;
             ctx.lineWidth = s.size;
             ctx.beginPath();
@@ -74,14 +74,16 @@ function init() {
 
     canvas[0].width = 1135
     canvas[0].height = 555
-}
 
 
-function lining() {
+
+if ($("#line").attr("data-status") === "active") {
+    console.log("this is line")
+    
     currentStroke = null;
-        $(init)
+        
         var twoPoints = false
-            console.log(twoPoints)
+            // console.log(twoPoints)
         contWidth = $(".messageContainer").css("width")
         contHeight = $(".messageContainer").css("height")
         contHeight = contHeight.replace(/\px/g, '');
@@ -96,13 +98,18 @@ function lining() {
                 color: line.color,
                 size: line.size,
                 type: "line",
-                points: []
+                points: [],
             };
+
+                console.log("Current: " + currentStroke)
+                console.log(strokes)
 
             if (twoPoints === false) {
                 twoPoints = true;
                 pointX1 = e.offsetX * canvas[0].width / contWidth
                 pointY1 = e.offsetY * canvas[0].height / contHeight
+                // console.log(pointX1)
+                // console.log(pointY1)
             }
         }).mouseup(function(e){
                 console.log(twoPoints)
@@ -111,6 +118,8 @@ function lining() {
                 twoPoints = false;
                 pointX2 = e.offsetX * canvas[0].width / contWidth
                 pointY2 = e.offsetY * canvas[0].height / contHeight
+                // console.log(pointX2)
+                // console.log(pointY2)
                 
                 ctx.beginPath();
                 ctx.moveTo(pointX1,pointY1);
@@ -120,8 +129,13 @@ function lining() {
                 currentLine.points.push({x: pointX1, y: pointY1})
                 currentLine.points.push({x: pointX2, y: pointY2})
 
+                // console.log(currentLine)
+                // console.log(currentStroke)
+                strokes.push(currentLine);
+
                 socket.emit("new line", currentLine, function(data){
                     // console.log(data);
+                    
                 })
 
                 currentLine = null;
@@ -148,18 +162,22 @@ function lining() {
 
         $('#color-picker').on('input', function () {
             brush.color = this.value;
+            line.color = this.value;
         });
 
         $('#brush-size').on('input', function () {
             brush.size = this.value;
+            line.color = this.value
         });
 }
+
     
 
-function brushing() {
+else if ($("#brush").attr("data-status") === "active") {
+    
     currentLine = null;
     console.log("brush")
-    $(init)
+    
     function mouseEvent (e) {
         
         
@@ -194,13 +212,13 @@ function brushing() {
             color: brush.color,
             size: brush.size,
             type: "brush",
-            points: []
+            points: [],
         };
 
         strokes.push(currentStroke);
 
-        console.log("Current: " + currentStroke)
-        console.log(strokes)
+        // console.log("Current: " + currentStroke)
+        // console.log(strokes)
 
         
 
@@ -240,16 +258,23 @@ function brushing() {
 
         $('#color-picker').on('input', function () {
             brush.color = this.value;
+            line.color = this.value;
         });
 
         $('#brush-size').on('input', function () {
             brush.size = this.value;
+            line.color = this.value;
         });
 
         
     }
 
 
+
+else {
+    // do nothing
+}
+}
 
 
 // $(init);
@@ -258,18 +283,20 @@ function brushing() {
         console.log("Brush: " + $("#brush").attr("data-status"))
         $("#line").attr("data-status", "inactive")
         console.log("Line: " + $("#line").attr("data-status"))
-        $(brushing)
+        init()
         redraw();
         
     })
 
     $("#line").on("click", function(){
-        $(this).attr("data-status", "active")
-        console.log("Line: " + $("#line").attr("data-status"))
-        $("#brush").attr("data-status", "inactive")
-        console.log("Brush: " + $("#brush").attr("data-status"))
-        $(lining);
-        redraw();
+        
+            $(this).attr("data-status", "active")
+            console.log("Line: " + $("#line").attr("data-status"))
+            $("#brush").attr("data-status", "inactive")
+            console.log("Brush: " + $("#brush").attr("data-status"))
+            init()
+            redraw();
+       
         
     })
 

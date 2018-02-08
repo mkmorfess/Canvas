@@ -61,13 +61,13 @@ io.sockets.on("connection", function(socket){
 
 
 
+
 	socket.on("new line", function(data) {
 		
 		strokes.push(data)
 		
 
-		console.log(strokes[0].points[0])
-		console.log(strokes[0].points[1])
+		
 		io.sockets.emit("send line", {line: strokes})
 	})
 
