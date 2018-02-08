@@ -251,7 +251,13 @@ else if ($("#brush").attr("data-status") === "active") {
 }
 
 
-// $(init);
+$(init);
+
+    $(window).resize(function(){
+        init()
+        redraw();
+    });
+
     $("#brush").on("click", function(){
         $(this).attr("data-status", "active")
         console.log("Brush: " + $("#brush").attr("data-status"))
