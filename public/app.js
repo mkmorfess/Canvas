@@ -227,9 +227,12 @@ else if ($("#brush").attr("data-status") === "active") {
             window.open(canvas[0].toDataURL());
         });
 
-        $('#undo-btn').click(function () {
-            strokes.pop();
-            redraw();
+        $('#undo-btn').off().on("click", function () {
+
+            socket.emit("undo line", function(data){
+                
+            })
+               
         });
 
         $('#clear-btn').click(function () {

@@ -78,6 +78,11 @@ io.sockets.on("connection", function(socket){
 		io.sockets.emit("cleared line")
 	})
 
+	socket.on("undo line", function(data){
+		strokes.pop()
+		io.sockets.emit("send line", {line: strokes})
+	})
+
 })
 
 function updateUsernames() {
