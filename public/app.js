@@ -12,16 +12,22 @@ var username = $("#username")
 var contHeight;
 var contWidth;
 
-var canvas, ctx, brush = {
+var canvas, ctx, line  = {
             x: 0,
             y: 0,
             color: '#000000',
             size: 1,
             down: false
-        }, strokes = [], currentStroke = null;
+        }, brush = {
+            x: 0,
+            y: 0,
+            color: '#000000',
+            size: 1,
+            down: false
+        }, strokes = [], currentStroke = null, currentLine = null;
 
 function redraw () {
-
+    console.log(strokes)
     canvas = $('#draw');
     ctx = canvas[0].getContext('2d');
 
@@ -30,12 +36,14 @@ function redraw () {
 
     ctx.clearRect(0, 0, canvas.width(), canvas.height());
             ctx.lineCap = 'round';
+
         for (var i = 0; i < strokes.length; i++) {
             var s = strokes[i];
 
             // if (s.color === null) {
             //    s.color = "#000000" 
             // }
+            if (s.type === "brush") {
 
             console.log(s.color)
             ctx.strokeStyle = s.color;
@@ -48,29 +56,121 @@ function redraw () {
             }
             ctx.stroke();
         }
+
+        if (s.type === "line") {
+            ctx.strokeStyle = s.color;
+            ctx.lineWidth = s.size;
+            ctx.beginPath();
+            ctx.moveTo(s.points[0].x, s.points[0].y);
+            ctx.lineTo(s.points[1].x, s.points[1].y);
+            ctx.stroke();
+        }
+    }
+
+}
+function init() {
+    canvas = $('#draw');
+    ctx = canvas[0].getContext('2d');
+
+    canvas[0].width = 1135
+    canvas[0].height = 555
 }
 
-function init () {
-        canvas = $('#draw');
-        ctx = canvas[0].getContext('2d');
 
-        canvas[0].width = 1135
-        canvas[0].height = 555
+function lining() {
+    currentStroke = null;
+        $(init)
+        var twoPoints = false
+            console.log(twoPoints)
+        contWidth = $(".messageContainer").css("width")
+        contHeight = $(".messageContainer").css("height")
+        contHeight = contHeight.replace(/\px/g, '');
+        contWidth = contWidth.replace(/\px/g, '');
+       
+        var pointX1, pointX2, pointY1, pointY2;
+        
+
+        canvas.mousedown(function(e){
+                console.log(twoPoints)
+            currentLine = {
+                color: line.color,
+                size: line.size,
+                type: "line",
+                points: []
+            };
+
+            if (twoPoints === false) {
+                twoPoints = true;
+                pointX1 = e.offsetX * canvas[0].width / contWidth
+                pointY1 = e.offsetY * canvas[0].height / contHeight
+            }
+        }).mouseup(function(e){
+                console.log(twoPoints)
+             if (twoPoints === true) {
+
+                twoPoints = false;
+                pointX2 = e.offsetX * canvas[0].width / contWidth
+                pointY2 = e.offsetY * canvas[0].height / contHeight
+                
+                ctx.beginPath();
+                ctx.moveTo(pointX1,pointY1);
+                ctx.lineTo(pointX2,pointY2);
+                ctx.stroke();
+
+                currentLine.points.push({x: pointX1, y: pointY1})
+                currentLine.points.push({x: pointX2, y: pointY2})
+
+                socket.emit("new line", currentLine, function(data){
+                    // console.log(data);
+                })
+
+                currentLine = null;
+                
+
+            }
+        })
+
+        $('#save-btn').click(function () {
+            window.open(canvas[0].toDataURL());
+        });
+
+        $('#undo-btn').click(function () {
+            strokes.pop();
+            redraw();
+        });
+
+        $('#clear-btn').click(function () {
+            socket.emit("clear line", strokes, function(data){
+                strokes = [];
+                redraw();
+            })
+        });
+
+        $('#color-picker').on('input', function () {
+            brush.color = this.value;
+        });
+
+        $('#brush-size').on('input', function () {
+            brush.size = this.value;
+        });
+}
     
 
-if ($("#brush").attr("data-status") === "active") {
-
+function brushing() {
+    currentLine = null;
+    console.log("brush")
+    $(init)
     function mouseEvent (e) {
         
         
-        contHeight = $(".messageContainer").css("width")
-        contWidth = $(".messageContainer").css("height")
+        contWidth = $(".messageContainer").css("width")
+        contHeight = $(".messageContainer").css("height")
         contHeight = contHeight.replace(/\px/g, '');
         contWidth = contWidth.replace(/\px/g, '');
        
 
-        brush.x = e.offsetX  * canvas[0].width / contHeight;
-        brush.y = e.offsetY * canvas[0].height / contWidth;
+        brush.x = e.offsetX  * canvas[0].width / contWidth;
+        brush.y = e.offsetY * canvas[0].height / contHeight;
         
    
        
@@ -93,7 +193,8 @@ if ($("#brush").attr("data-status") === "active") {
         currentStroke = {
             color: brush.color,
             size: brush.size,
-            points: [],
+            type: "brush",
+            points: []
         };
 
         strokes.push(currentStroke);
@@ -148,14 +249,28 @@ if ($("#brush").attr("data-status") === "active") {
         
     }
 
-}
-$(init);
+
+
+
+// $(init);
     $("#brush").on("click", function(){
         $(this).attr("data-status", "active")
-        console.log($("#brush").attr("data-status"))
-        
-
+        console.log("Brush: " + $("#brush").attr("data-status"))
+        $("#line").attr("data-status", "inactive")
+        console.log("Line: " + $("#line").attr("data-status"))
+        $(brushing)
         redraw();
+        
+    })
+
+    $("#line").on("click", function(){
+        $(this).attr("data-status", "active")
+        console.log("Line: " + $("#line").attr("data-status"))
+        $("#brush").attr("data-status", "inactive")
+        console.log("Brush: " + $("#brush").attr("data-status"))
+        $(lining);
+        redraw();
+        
     })
 
 
