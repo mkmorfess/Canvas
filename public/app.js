@@ -1,5 +1,5 @@
 $(document).ready(function(){
-
+//Global variables set
 var socket = io.connect();
 var messageForm = $("#messageForm")
 var message = $("#message")
@@ -11,23 +11,202 @@ var users = $("#users")
 var username = $("#username")
 var contHeight;
 var contWidth;
+var canvas, ctx
+var line  = {
+            x: 0,
+            y: 0,
+            color: '#000000',
+            size: 1,
+            down: false
+        }
+var brush = {
+            x: 0,
+            y: 0,
+            color: '#000000',
+            size: 1,
+            down: false
+        }
+var strokes = [], currentStroke = {}, currentLine = {};
 
-var canvas, ctx, line  = {
-            x: 0,
-            y: 0,
-            color: '#000000',
-            size: 1,
-            down: false
-        }, brush = {
-            x: 0,
-            y: 0,
-            color: '#000000',
-            size: 1,
-            down: false
-        }, strokes = [], currentStroke = {}, currentLine = {};
+//Initiates the canvas
+init();
+
+
+
+//Save Button
+$('#save-btn').click(function () {
+    var image = canvas[0].toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+
+    window.open(image);
+});
+
+//Undo Button
+
+$('#undo-btn').off().on("click", function () {
+    socket.emit("undo line", function(data){    
+    })    
+});
+
+//Clear Button
+
+$('#clear-btn').click(function () {
+    socket.emit("clear line", strokes, function(data){
+        strokes = [];
+        redraw();
+    })
+});
+
+//Color Picker
+
+$('#color-picker').on('input', function () {
+    brush.color = this.value;
+    line.color = this.value;
+});
+
+//Brush Size
+
+$('#brush-size').on('input', function () {
+    brush.size = this.value;
+    line.color = this.value
+});
+
+
+//Rescales the canvas with init and redraw on window resize
+$(window).resize(function(){
+    init()
+    redraw();
+});
+
+//Brush Button
+
+$("#brush").on("click", function(){
+
+    $(this).attr("data-status", "active")
+    
+    $("#line").attr("data-status", "inactive")
+    $("#circle").attr("data-status", "inactive")
+    
+    init()
+    redraw();  
+})
+
+//Line Button
+
+$("#line").on("click", function(){
+
+    $(this).attr("data-status", "active")
+    
+    $("#brush").attr("data-status", "inactive")
+    $("#circle").attr("data-status", "inactive")
+    
+    init()
+    redraw();
+
+})
+
+$("#circle").on("click", function(){
+
+    $(this).attr("data-status", "active")
+
+    $("#brush").attr("data-status", "inactive")
+    $("#line").attr("data-status", "inactive")
+
+    init()
+    redraw();
+
+})
+
+//Sending a message on submit
+messageForm.submit(function(e){
+	e.preventDefault();
+
+    if (message.val().trim() === "") {
+        message.val("")
+    } else {
+	  socket.emit("send message", $("#message").attr("data-name") + ": " + message.val().trim(), function(data){
+            
+      });
+
+
+      message.val("")
+	  
+    }
+})
+
+
+//User Form on Submit to take in a new user on the app
+userForm.submit(function(e){
+	e.preventDefault();
+	socket.emit("new user", username.val().trim(), function(data){
+		
+		if (data) {
+			userFormArea.css("display", "none");
+			messageArea.show("display", "block");
+            $("#message").attr("data-name", username.val().trim())
+		}
+
+        socket.on("get drawing", function(data){
+
+            for (var i = 0; i < data.line.length; i++) {
+                 strokes.push(data.line[i])
+            }
+
+            redraw();
+
+        })
+
+	});
+})
+
+//Web socket receives new message from the user from the server and prepends the message
+socket.on("new message", function(data){
+	chat.prepend("<div class='well'>"+ data.msg + "</div>")
+})
+
+
+//Anytime a new user joins, web socket retrieves the list of users from the server and displays them
+socket.on("get users", function(data){
+    
+	var html = ""
+	for (var i = 0; i < data.length; i++) {
+		html += "<li class='list-group-item'>" + data[i] + "</li>"
+	}
+
+	users.html(html)
+})
+
+
+//This gets the array of strokes from the server and displays them on the canvas
+socket.on("send line", function(data){
+
+    strokes = [];
+    
+	for (var i = 0; i < data.line.length; i++) {
+         var newStroke = data.line[i]
+         strokes.push(newStroke)
+    }
+
+	redraw();
+})
+
+//Web socket getting a response from the server that all the strokes have been cleared and to redraw a blank canvas
+
+socket.on("cleared line", function(data){
+	
+	strokes = [];
+
+	redraw();
+
+
+})
+
+	
+
+	
+
 
 function redraw () {
-    // console.log(strokes)
+    
     canvas = $('#draw');
     ctx = canvas[0].getContext('2d');
 
@@ -37,67 +216,73 @@ function redraw () {
     
 
     ctx.clearRect(0, 0, canvas.width(), canvas.height());
-            ctx.lineCap = 'round';
+    ctx.lineCap = 'round';
 
-        for (var i = 0; i < strokes.length; i++) {
-            var s = strokes[i];
+    //Goes through the array of strokes and displays them on the canvas
 
-            // if (s.color === null) {
-            //    s.color = "#000000" 
-            // }
-            if (s.type === "brush") {
+    for (var i = 0; i < strokes.length; i++) {
+        var s = strokes[i];
 
-            // console.log(s.color)
+        
+        if (s.type === "brush") {
+
             ctx.strokeStyle = s.color;
             ctx.lineWidth = s.size;
             ctx.beginPath();
             ctx.moveTo(s.points[0].x, s.points[0].y);
+
             for (var j = 0; j < s.points.length; j++) {
+
                 var p = s.points[j];
                 ctx.lineTo(p.x, p.y);
+
             }
+
             ctx.stroke();
         }
 
         if (s.type === "line") {
+
             ctx.strokeStyle = s.color;
             ctx.lineWidth = s.size;
             ctx.beginPath();
             ctx.moveTo(s.points[0].x, s.points[0].y);
             ctx.lineTo(s.points[1].x, s.points[1].y);
             ctx.stroke();
+            
         }
     }
-
 }
+
+
 function init() {
+
     canvas = $('#draw');
     ctx = canvas[0].getContext('2d');
 
     canvas[0].width = 1135
     canvas[0].height = 555
-
+    //Unbinds the previous mouse events
     canvas.off().mouseup()
     canvas.off().mousedown()
     canvas.off().mousemove()
 
-if ($("#line").attr("data-status") === "active") {
-    console.log("this is line")
-    
-    currentStroke = {};
+    if ($("#line").attr("data-status") === "active") {
         
+        currentStroke = {};
+            
         var twoPoints = false
-            // console.log(twoPoints)
+            
         contWidth = $(".messageContainer").css("width")
         contHeight = $(".messageContainer").css("height")
         contHeight = contHeight.replace(/\px/g, '');
         contWidth = contWidth.replace(/\px/g, '');
        
         var pointX1, pointX2, pointY1, pointY2;
-        
+            
 
         canvas.mousedown(function(e){
-                console.log(twoPoints)
+            
             currentLine = {
                 color: line.color,
                 size: line.size,
@@ -105,25 +290,21 @@ if ($("#line").attr("data-status") === "active") {
                 points: [],
             };
 
-                console.log("Current: " + currentStroke)
-                console.log(strokes)
-
             if (twoPoints === false) {
                 twoPoints = true;
                 pointX1 = e.offsetX * canvas[0].width / contWidth
                 pointY1 = e.offsetY * canvas[0].height / contHeight
-                // console.log(pointX1)
-                // console.log(pointY1)
+                
             }
+
         }).mouseup(function(e){
-                console.log(twoPoints)
+                
              if (twoPoints === true) {
 
                 twoPoints = false;
                 pointX2 = e.offsetX * canvas[0].width / contWidth
                 pointY2 = e.offsetY * canvas[0].height / contHeight
-                // console.log(pointX2)
-                // console.log(pointY2)
+                
                 
                 ctx.beginPath();
                 ctx.moveTo(pointX1,pointY1);
@@ -133,249 +314,90 @@ if ($("#line").attr("data-status") === "active") {
                 currentLine.points.push({x: pointX1, y: pointY1})
                 currentLine.points.push({x: pointX2, y: pointY2})
 
-                // console.log(currentLine)
-                // console.log(currentStroke)
+                
                 strokes.push(currentLine);
 
                 socket.emit("new line", currentLine, function(data){
-                    // console.log(data);
+                    
                     
                 })
 
-                currentLine = null;
+                currentLine = {};
                 
 
             }
         })
-
-}
-
-    
-
-else if ($("#brush").attr("data-status") === "active") {
-    
-    currentLine = {};
-    console.log("brush")
-    
-    function mouseEvent (e) {
-        
-        
-        contWidth = $(".messageContainer").css("width")
-        contHeight = $(".messageContainer").css("height")
-        contHeight = contHeight.replace(/\px/g, '');
-        contWidth = contWidth.replace(/\px/g, '');
-       
-
-        brush.x = e.offsetX  * canvas[0].width / contWidth;
-        brush.y = e.offsetY * canvas[0].height / contHeight;
-        
-   
-       
-
-        currentStroke.points.push({
-            x: brush.x,
-            y: brush.y,
-        });
-
-        
-
-        redraw();
     }
 
-    canvas.mousedown(function (e) {
+    
+
+    else if ($("#brush").attr("data-status") === "active") {
         
-        // console.log(e)
-        brush.down = true;
-
-        currentStroke = {
-            color: brush.color,
-            size: brush.size,
-            type: "brush",
-            points: [],
-        };
-
-        strokes.push(currentStroke);
-
-        // console.log("Current: " + currentStroke)
-        // console.log(strokes)
-
+        currentLine = {};
         
+        function mouseEvent (e) {
+            
+            
+            contWidth = $(".messageContainer").css("width")
+            contHeight = $(".messageContainer").css("height")
+            contHeight = contHeight.replace(/\px/g, '');
+            contWidth = contWidth.replace(/\px/g, '');
+           
 
-        mouseEvent(e);
-    }).mouseup(function (e) {
-        
-        socket.emit("new line", currentStroke, function(data){
-            // console.log(data);
-        })
-        
+            brush.x = e.offsetX  * canvas[0].width / contWidth;
+            brush.y = e.offsetY * canvas[0].height / contHeight;
+            
+       
+           
 
-        brush.down = false;
+            currentStroke.points.push({
+                x: brush.x,
+                y: brush.y,
+            });
 
-        mouseEvent(e);
+            
 
-        currentStroke = null;
-    }).mousemove(function (e) {
-        if (brush.down)
-            mouseEvent(e);
-    })
-
-        
-    }
-
-
-        $('#save-btn').click(function () {
-            var image = canvas[0].toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
-
-            window.open(image);
-        });
-
-        $('#undo-btn').off().on("click", function () {
-
-            socket.emit("undo line", function(data){
-                
-            })
-               
-        });
-
-        $('#clear-btn').click(function () {
-            socket.emit("clear line", strokes, function(data){
-                strokes = [];
-                redraw();
-            })
-        });
-
-        $('#color-picker').on('input', function () {
-            brush.color = this.value;
-            line.color = this.value;
-        });
-
-        $('#brush-size').on('input', function () {
-            brush.size = this.value;
-            line.color = this.value
-        });
-}
-
-
-$(init);
-
-    $(window).resize(function(){
-        init()
-        redraw();
-    });
-
-    $("#brush").on("click", function(){
-        $(this).attr("data-status", "active")
-        console.log("Brush: " + $("#brush").attr("data-status"))
-        $("#line").attr("data-status", "inactive")
-        console.log("Line: " + $("#line").attr("data-status"))
-        init()
-        redraw();
-        
-    })
-
-    $("#line").on("click", function(){
-        
-            $(this).attr("data-status", "active")
-            console.log("Line: " + $("#line").attr("data-status"))
-            $("#brush").attr("data-status", "inactive")
-            console.log("Brush: " + $("#brush").attr("data-status"))
-            init()
             redraw();
-       
-        
-    })
+        }
 
+        canvas.mousedown(function (e) {
+            
+            brush.down = true;
 
-	messageForm.submit(function(e){
-		e.preventDefault();
+            currentStroke = {
+                color: brush.color,
+                size: brush.size,
+                type: "brush",
+                points: [],
+            };
 
-        if (message.val().trim() === "") {
-            message.val("")
-        } else {
-		  socket.emit("send message", $("#message").attr("data-name") + ": " + message.val().trim(), function(data){
+            strokes.push(currentStroke);
+
+            mouseEvent(e);
+        }).mouseup(function (e) {
+            
+            socket.emit("new line", currentStroke, function(data){
                 
-          });
-
-
-          message.val("")
-		  
-        }
-	})
-
-	userForm.submit(function(e){
-		e.preventDefault();
-		socket.emit("new user", username.val().trim(), function(data){
-			
-			if (data) {
-				userFormArea.css("display", "none");
-				messageArea.show("display", "block");
-                $("#message").attr("data-name", username.val().trim())
-			}
-
-            socket.on("get drawing", function(data){
-
-                for (var i = 0; i < data.line.length; i++) {
-                     strokes.push(data.line[i])
-                }
-
-                redraw();
-
             })
+            
 
-		});
-		// username.val("")
-	})
+            brush.down = false;
 
+            mouseEvent(e);
 
-	socket.on("new message", function(data){
-		chat.prepend("<div class='well'>"+ data.msg + "</div>")
-	})
+            currentStroke = null;
+        }).mousemove(function (e) {
+            if (brush.down)
+                mouseEvent(e);
+        })
 
+            
+    }
 
+    else {
+        throw Error("Something went wrong")
+    }
 
-	socket.on("get users", function(data){
-        
-		var html = ""
-		for (var i = 0; i < data.length; i++) {
-			html += "<li class='list-group-item'>" + data[i] + "</li>"
-		}
-
-		users.html(html)
-	})
-
-	socket.on("send line", function(data){
-
-        strokes = [];
-        
-		for (var i = 0; i < data.line.length; i++) {
-             var newStroke = data.line[i]
-             strokes.push(newStroke)
-             // console.log(strokes)
-        }
-
-		redraw();
-        // console.log(strokes)
-
-
-	})
-
-	socket.on("cleared line", function(data){
-		
-		strokes = [];
-		
-		// console.log(data)
-		// console.log(strokes)
-
-		redraw();
-
-
-	})
-
-	
-
-	
-	
-
-
+}
 
 })

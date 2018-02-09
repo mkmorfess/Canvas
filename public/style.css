@@ -1,82 +1,82 @@
-	.top-bar {
-	    display: flex;
-	    flex-direction: row;
-	    background-color: rgba(0,0,0,0.7);
-	    border-bottom: 2px solid black;
-	    position: relative;
-	    width: 100%;
-	    box-shadow: 2px 0px 2px  rgba(0,0,0,0.7);
-	}
+.top-bar {
+    display: flex;
+    flex-direction: row;
+    background-color: rgba(0,0,0,0.7);
+    border-bottom: 2px solid black;
+    position: relative;
+    width: 100%;
+    box-shadow: 2px 0px 2px  rgba(0,0,0,0.7);
+}
 
-	.top-bar * {
-	    margin: 5px 10px;
-	}
+.top-bar * {
+    margin: 5px 10px;
+}
 
-	#chat {
-		margin-top: 2%;
-		overflow: scroll;
-		width: 100%;
-		height: 250px;
-		background: rgba(255,255,255,0.7);
-		box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
-	}
+#chat {
+	margin-top: 2%;
+	overflow: scroll;
+	width: 100%;
+	height: 250px;
+	background: rgba(255,255,255,0.7);
+	box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
+}
 
-	#draw {
-	    display: block;
-	    width: 100%;
-	}
+#draw {
+    display: block;
+    width: 100%;
+}
 
-	.userSection {
-		margin-top: 10%;
-		box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
-		overflow: scroll;
-		
-		height: 250px;
-	}
-
-	#messageForm{
-		margin-top: 2%;
-	}
-
-	#userForm {
-		margin-top: 10%;
-	}
+.userSection {
+	margin-top: 10%;
+	box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
+	overflow: scroll;
 	
-	body {
-		background-image: url("images/image.jpg");
-		background-repeat: no-repeat;
-		background-size: cover;
-		font-family: 'Days One', sans-serif;
-	}
+	height: 250px;
+}
 
-	h1 {
-		margin-top: 2%;
-		margin-bottom: 3%;
-		font-size: 56px;
-		text-shadow: 2px 2px 2px rgba(0,0,0,0.9);
-	}
+#messageForm{
+	margin-top: 2%;
+}
 
-	#messageArea {
-		display: none;
-	}
+#userForm {
+	margin-top: 10%;
+}
 
-	canvas {
-		border: 1px solid black;
-		background: white;
-	    box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
-    
-  
+body {
+	background-image: url("images/image.jpg");
+	background-repeat: no-repeat;
+	background-size: cover;
+	font-family: 'Days One', sans-serif;
+}
 
-	}
+h1 {
+	margin-top: 2%;
+	margin-bottom: 3%;
+	font-size: 56px;
+	text-shadow: 2px 2px 2px rgba(0,0,0,0.9);
+}
 
-	/*.layer {
+#messageArea {
+	display: none;
+}
 
-	    background-color: rgba(0, 0, 0, 0.7);
-	    position: absolute;
-	    top: 0;
-	    left: 0;
-	    width: 100%;
-	    height: 100%;
-	}*/
+canvas {
+	border: 1px solid black;
+	background: white;
+    box-shadow: 2px 2px 2px rgba(0,0,0,0.7);
+
+
+
+}
+
+/*.layer {
+
+    background-color: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}*/
 
 

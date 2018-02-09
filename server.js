@@ -20,7 +20,7 @@ app.use(express.static('public'))
 app.use("/", routes)
 
 io.sockets.on("connection", function(socket){
-
+	//Connect
 	connections.push(socket);
 	console.log("Connected: %s sockets connected", connections.length)
 
@@ -32,11 +32,11 @@ io.sockets.on("connection", function(socket){
 		console.log("Disconnected: %s sockets connected", connections.length)
 
 	})
-	
+	//Gets message from Jquery and sends it back
 	socket.on("send message", function(data){
 		io.sockets.emit("new message", {msg: data});
 	})
-
+	//Gets user from Jquery and sends it back
 	socket.on("new user", function(data, cb){
 		cb(true)
 		socket.username = data;
@@ -60,24 +60,22 @@ io.sockets.on("connection", function(socket){
 	})
 
 
-
+	//Gets new line from Jquery and sends it back
 
 	socket.on("new line", function(data) {
 		
 		strokes.push(data)
 		
-
-		
 		io.sockets.emit("send line", {line: strokes})
 	})
 
-
+	//Clear button clicked 
 
 	socket.on("clear line", function(data) {
 		strokes = [];
 		io.sockets.emit("cleared line")
 	})
-
+	//Undo button clicked
 	socket.on("undo line", function(data){
 		strokes.pop()
 		io.sockets.emit("send line", {line: strokes})
