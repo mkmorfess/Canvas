@@ -326,6 +326,21 @@ function init() {
                 
 
             }
+        }).mousemove(function(e){
+
+            var tempX = e.offsetX * canvas[0].width / contWidth
+            var tempY = e.offsetY * canvas[0].height / contHeight
+
+            if (twoPoints) {
+
+                ctx.clearRect(0, 0, contWidth, contHeight)
+                redraw()
+                ctx.beginPath();
+                ctx.moveTo(pointX1,pointY1);
+                ctx.lineTo(tempX,tempY);
+                ctx.stroke();
+                
+            }
         })
     }
 
