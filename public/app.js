@@ -224,7 +224,9 @@ else if ($("#brush").attr("data-status") === "active") {
 
 
         $('#save-btn').click(function () {
-            window.open(canvas[0].toDataURL());
+            var image = canvas[0].toDataURL("image/png").replace("image/png", "image/octet-stream");  // here is the most important part because if you dont replace you will get a DOM 18 exception.
+
+            window.open(image);
         });
 
         $('#undo-btn').off().on("click", function () {
