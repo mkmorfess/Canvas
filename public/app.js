@@ -26,7 +26,7 @@ var brush = {
             size: 1,
             down: false
         }
-var strokes = [], currentStroke = {}, currentLine = {};
+var strokes = [], currentStroke = {}, currentLine = {}, currentCircle = {};
 
 //Initiates the canvas
 init();
@@ -251,6 +251,15 @@ function redraw () {
             ctx.stroke();
             
         }
+
+        if (s.type === "circle") {
+            ctx.strokeStyle = s.color;
+            ctx.lineWidth = s.size;
+            ctx.beginPath();
+            ctx.arc(s.points[0].x, s.points[0].y, s.points[0].r, 0, 2 * Math.PI);
+            ctx.stroke()
+
+        }
     }
 }
 
@@ -270,6 +279,7 @@ function init() {
     if ($("#line").attr("data-status") === "active") {
         
         currentStroke = {};
+        currentCircle = {};
             
         var twoPoints = false
             
@@ -349,6 +359,7 @@ function init() {
     else if ($("#brush").attr("data-status") === "active") {
         
         currentLine = {};
+        currentCircle = {};
         
         function mouseEvent (e) {
             
@@ -407,6 +418,87 @@ function init() {
         })
 
             
+    }
+
+    else if ($("#circle").attr("data-status") === "active") {
+        
+        currentStroke = {};
+        currentLine = {};
+            
+        var twoPoints = false
+            
+        contWidth = $(".messageContainer").css("width")
+        contHeight = $(".messageContainer").css("height")
+        contHeight = contHeight.replace(/\px/g, '');
+        contWidth = contWidth.replace(/\px/g, '');
+       
+        var pointX1, pointX2, pointY1, pointY2, radius;
+            
+
+        canvas.mousedown(function(e){
+
+            currentCircle = {
+                color: line.color,
+                size: line.size,
+                type: "circle",
+                points: [],
+            };
+
+            if (twoPoints === false) {
+                twoPoints = true;
+                pointX1 = e.offsetX * canvas[0].width / contWidth
+                pointY1 = e.offsetY * canvas[0].height / contHeight
+                
+            }
+
+        }).mouseup(function(e){
+
+            if (twoPoints === true) {
+
+                twoPoints = false;
+                pointX2 = e.offsetX * canvas[0].width / contWidth
+                pointY2 = e.offsetY * canvas[0].height / contHeight
+                radius = Math.abs(pointX1 - pointX2)
+                
+                
+                
+                ctx.beginPath();
+                ctx.arc(pointX1, pointY1, radius, 0, 2 * Math.PI);
+                ctx.stroke()
+
+                currentCircle.points.push({x: pointX1, y: pointY1, r: radius})
+                // currentCircle.points.push({x: pointX2, y: pointY2})
+
+                
+                strokes.push(currentCircle);
+
+                socket.emit("new line", currentCircle, function(data){
+                    
+                    
+                })
+
+                currentCircle = {};
+                
+
+            }
+                
+        }).mousemove(function(e){
+
+            var tempX = e.offsetX * canvas[0].width / contWidth
+            var tempY = e.offsetY * canvas[0].height / contHeight
+            var tempRadius = Math.abs(pointX1 - tempX)
+
+            if (twoPoints) {
+
+                ctx.clearRect(0, 0, contWidth, contHeight)
+                redraw()
+                ctx.beginPath();
+                ctx.arc(pointX1, pointY1, tempRadius, 0, 2 * Math.PI);
+                ctx.stroke();
+                
+            }
+
+        })
     }
 
     else {
