@@ -57,16 +57,16 @@ io.sockets.on("connection", function(socket){
 			socket.username += random.toString()
 			users.push(socket.username)
 			updateUsernames();
-			if (strokes.length > 0) {
-				socket.emit("get drawing", {line: strokes})
-			}
+			// if (strokes.length > 0) {
+			// 	socket.emit("get drawing", {line: strokes})
+			// }
 
 		} else {
 			users.push(socket.username)
 			updateUsernames();
-			if (strokes.length > 0) {
-				socket.emit("get drawing", {line: strokes})
-			}
+			// if (strokes.length > 0) {
+			// 	socket.emit("get drawing", {line: strokes})
+			// }
 
 		}
 	})
@@ -77,8 +77,18 @@ io.sockets.on("connection", function(socket){
 	socket.on("new line", function(data) {
 		
 		strokes.push(data)
+		console.log("This is data on new line: " + data)
+		console.log("Strokes: " + strokes)
 		
-		io.sockets.emit("send line", {line: strokes})
+		sendLine()
+	})
+
+	socket.on("new dbline", function(data){
+		strokes = [];
+		for (var i = 0; i < data.length; i++){
+			strokes.push(data[i])
+		}
+		sendLine()
 	})
 
 	//Clear button clicked 
@@ -90,7 +100,7 @@ io.sockets.on("connection", function(socket){
 	//Undo button clicked
 	socket.on("undo line", function(data){
 		strokes.pop()
-		io.sockets.emit("send line", {line: strokes})
+		sendLine()
 	})
 
 })
@@ -99,4 +109,8 @@ function updateUsernames() {
 
 	io.sockets.emit("get users" , users);
 
+}
+
+function sendLine(){
+	io.sockets.emit("send line", {line: strokes})
 }

@@ -12,13 +12,6 @@ var username = $("#username")
 var contHeight;
 var contWidth;
 var canvas, ctx
-var line  = {
-            x: 0,
-            y: 0,
-            color: '#000000',
-            size: 1,
-            down: false
-        }
 var brush = {
             x: 0,
             y: 0,
@@ -26,7 +19,10 @@ var brush = {
             size: 1,
             down: false
         }
-var strokes = [], currentStroke = {}, currentLine = {}, currentCircle = {};
+var strokes = []
+var currentStroke = {} 
+var currentLine = {} 
+var currentCircle = {};
 
 //Initiates the canvas
 init();
@@ -69,14 +65,12 @@ $('#clear-btn').click(function () {
 
 $('#color-picker').on('input', function () {
     brush.color = this.value;
-    line.color = this.value;
 });
 
 //Brush Size
 
 $('#brush-size').on('input', function () {
     brush.size = this.value;
-    line.size = this.value
 });
 
 
@@ -110,8 +104,9 @@ $("#line").on("click", function(){
     
     init()
     redraw();
-
 })
+
+//Circle Button
 
 $("#circle").on("click", function(){
 
@@ -122,7 +117,6 @@ $("#circle").on("click", function(){
 
     init()
     redraw();
-
 })
 
 //Sending a message on submit
@@ -154,21 +148,14 @@ userForm.submit(function(e){
             $("#message").attr("data-name", username.val().trim())
         }
 
-        socket.on("get drawing", function(data){
-
-            for (var i = 0; i < data.line.length; i++) {
-                 strokes.push(data.line[i])
-            }
-
-            redraw();
-
-        })
+       
 
         $.ajax({
             url: "/",
             type: "PUT"
         }).done(function(response){
             console.log(response)
+            var dbDrawing = [];
             for (var i = 0; i < response.length; i++) {
                 var dbStrokes = {
                     color: response[i].color,
@@ -189,15 +176,11 @@ userForm.submit(function(e){
                         dbStrokes.points.push({x: response[i].points[j].x, y: response[i].points[j].y, r: response[i].points[j].r})
                     }
                 }
-       
-                strokes.push(dbStrokes)
+                dbDrawing.push(dbStrokes)                      
             }
-
-            console.log(strokes)
-            redraw();
-
+            socket.emit("new dbline", dbDrawing, function(data){
+            })   
         })
-
     });
 })
 
@@ -209,7 +192,6 @@ socket.on("new message", function(data){
 
 //Anytime a new user joins, web socket retrieves the list of users from the server and displays them
 socket.on("get users", function(data){
-    
     var html = ""
     for (var i = 0; i < data.length; i++) {
         html += "<li class='list-group-item'>" + data[i] + "</li>"
@@ -221,12 +203,12 @@ socket.on("get users", function(data){
 
 //This gets the array of strokes from the server and displays them on the canvas
 socket.on("send line", function(data){
-    
+    strokes = [];
+
     for (var i = 0; i < data.line.length; i++) {
          var newStroke = data.line[i]
          strokes.push(newStroke)
     }
-
     redraw();
 })
 
@@ -244,10 +226,6 @@ socket.on("cleared line", function(data){
     })
 
     redraw();
-
-
-
-
 })
 
     
@@ -344,8 +322,8 @@ function init() {
         canvas.mousedown(function(e){
             
             currentLine = {
-                color: line.color,
-                size: line.size,
+                color: brush.color,
+                size: brush.size,
                 type: "line",
                 points: [],
             };
@@ -513,8 +491,8 @@ function init() {
         canvas.mousedown(function(e){
 
             currentCircle = {
-                color: line.color,
-                size: line.size,
+                color: brush.color,
+                size: brush.size,
                 type: "circle",
                 points: [],
             };
@@ -590,7 +568,6 @@ function init() {
     else {
         throw Error("Something went wrong")
     }
-
 }
 
 })

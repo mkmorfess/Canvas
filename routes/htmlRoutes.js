@@ -4,7 +4,6 @@ var router = express.Router();
 var mongoose = require("mongoose");
 
 var databaseUrl = process.env.MONGODB_URI ||'mongodb://localhost:27017/drawings';
-var collections = ["strokes"];
 
 mongoose.Promise = Promise;
 mongoose.connect(databaseUrl);
@@ -33,7 +32,7 @@ router.post("/", function(req, res){
       		res.json({"Error": "Error"});
     	}
     	else {
-    		console.log(data)
+    		
       		res.json(data);
     	}
 
@@ -48,7 +47,7 @@ router.put("/", function(req, res){
       		res.json({"Error": "Error"});
     	}
     	else {
-    		console.log(data)
+    		
       		res.json(data);
     	}
 
@@ -63,7 +62,7 @@ router.delete("/delete", function(req, res){
       		res.json({"Error": "Error"});
     	}
     	else {
-    		console.log(data)
+    		
       		res.json(data);
     	}
 
@@ -78,7 +77,6 @@ router.delete("/undo", function(req, res){
       		res.json({"Error": "Error"});
     	}
     	else {
-    		console.log(data[0]._id)
 
       		db.findByIdAndRemove(data[0]._id, function(error, removed){
 
@@ -87,7 +85,7 @@ router.delete("/undo", function(req, res){
 		      		res.json({"Error": "Error"});
 		    	}
     			else {
-    				console.log(removed)
+    				
     				res.json(removed)
 
     			}
