@@ -80,7 +80,7 @@ router.delete("/undo", function(req, res){
     	else {
     		console.log(data[0]._id)
 
-      		db.findByIdAndRemove(data[0], function(error, removed){
+      		db.findByIdAndRemove(data[0]._id, function(error, removed){
 
       			if (err) {
 		      		console.log("This is the error: " + err);
