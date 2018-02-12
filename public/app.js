@@ -52,7 +52,8 @@ $('#undo-btn').off().on("click", function () {
     })
 
     socket.emit("undo line", function(data){    
-    })    
+    })
+
 });
 
 //Clear Button

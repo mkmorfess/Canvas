@@ -88,6 +88,7 @@ router.delete("/undo", function(req, res){
 		    	}
     			else {
     				console.log(removed)
+    				res.json(removed)
 
     			}
 
