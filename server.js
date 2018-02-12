@@ -2,12 +2,24 @@ var express = require("express");
 var app = express();
 var server = require("http").createServer(app);
 var io = require("socket.io").listen(server);
+var bodyParser = require('body-parser')
 var exphbs  = require('express-handlebars');
 var routes = require("./routes/htmlRoutes.js")
 
 var users = [];
 var connections = [];
 var strokes = [];
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }))
+ 
+app.use(bodyParser.json({ type: 'application/*+json' }))
+
+// parse some custom thing into a Buffer
+app.use(bodyParser.raw({ type: 'application/vnd.custom-type' }))
+
+// parse an HTML body into a string
+app.use(bodyParser.text({ type: 'text/html' }))
 
 server.listen(process.env.PORT || 3000, function(){
 	console.log("Server Running")

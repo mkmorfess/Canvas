@@ -16,7 +16,8 @@
   "dependencies": {
     "express": "*",
     "express-handlebars": "^3.0.0",
-    "socket.io": "*"
+    "mongoose": "^5.0.4",
+    "socket.io": "*",
   },
   "bugs": {
     "url": "https://github.com/mkmorfess/Canvas/issues"

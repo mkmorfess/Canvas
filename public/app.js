@@ -43,6 +43,14 @@ $('#save-btn').click(function () {
 //Undo Button
 
 $('#undo-btn').off().on("click", function () {
+
+    $.ajax({
+        url: "/undo",
+        type: "DELETE"
+    }).done(function(response){
+        console.log(response)
+    })
+
     socket.emit("undo line", function(data){    
     })    
 });
@@ -67,7 +75,7 @@ $('#color-picker').on('input', function () {
 
 $('#brush-size').on('input', function () {
     brush.size = this.value;
-    line.color = this.value
+    line.size = this.value
 });
 
 
@@ -118,32 +126,32 @@ $("#circle").on("click", function(){
 
 //Sending a message on submit
 messageForm.submit(function(e){
-	e.preventDefault();
+    e.preventDefault();
 
     if (message.val().trim() === "") {
         message.val("")
     } else {
-	  socket.emit("send message", $("#message").attr("data-name") + ": " + message.val().trim(), function(data){
+      socket.emit("send message", $("#message").attr("data-name") + ": " + message.val().trim(), function(data){
             
       });
 
 
       message.val("")
-	  
+      
     }
 })
 
 
 //User Form on Submit to take in a new user on the app
 userForm.submit(function(e){
-	e.preventDefault();
-	socket.emit("new user", username.val().trim(), function(data){
-		
-		if (data) {
-			userFormArea.css("display", "none");
-			messageArea.show("display", "block");
+    e.preventDefault();
+    socket.emit("new user", username.val().trim(), function(data){
+        
+        if (data) {
+            userFormArea.css("display", "none");
+            messageArea.css("display", "block");
             $("#message").attr("data-name", username.val().trim())
-		}
+        }
 
         socket.on("get drawing", function(data){
 
@@ -155,54 +163,95 @@ userForm.submit(function(e){
 
         })
 
-	});
+        $.ajax({
+            url: "/",
+            type: "PUT"
+        }).done(function(response){
+            console.log(response)
+            for (var i = 0; i < response.length; i++) {
+                var dbStrokes = {
+                    color: response[i].color,
+                    size: response[i].size,
+                    type: response[i].type,
+                    points: []
+                }
+                if (response[i].type === "line" || response[i].type === "brush") {
+
+                    for (var j = 0; j < response[i].points.length; j++) {
+                        dbStrokes.points.push({x: response[i].points[j].x, y: response[i].points[j].y})
+                    }
+
+                }
+
+                if (response[i].type === "circle") {
+                    for (var j = 0; j < response[i].points.length; j++) {
+                        dbStrokes.points.push({x: response[i].points[j].x, y: response[i].points[j].y, r: response[i].points[j].r})
+                    }
+                }
+       
+                strokes.push(dbStrokes)
+            }
+
+            console.log(strokes)
+            redraw();
+
+        })
+
+    });
 })
 
 //Web socket receives new message from the user from the server and prepends the message
 socket.on("new message", function(data){
-	chat.prepend("<div class='well'>"+ data.msg + "</div>")
+    chat.prepend("<div class='well'>"+ data.msg + "</div>")
 })
 
 
 //Anytime a new user joins, web socket retrieves the list of users from the server and displays them
 socket.on("get users", function(data){
     
-	var html = ""
-	for (var i = 0; i < data.length; i++) {
-		html += "<li class='list-group-item'>" + data[i] + "</li>"
-	}
+    var html = ""
+    for (var i = 0; i < data.length; i++) {
+        html += "<li class='list-group-item'>" + data[i] + "</li>"
+    }
 
-	users.html(html)
+    users.html(html)
 })
 
 
 //This gets the array of strokes from the server and displays them on the canvas
 socket.on("send line", function(data){
-
-    strokes = [];
     
-	for (var i = 0; i < data.line.length; i++) {
+    for (var i = 0; i < data.line.length; i++) {
          var newStroke = data.line[i]
          strokes.push(newStroke)
     }
 
-	redraw();
+    redraw();
 })
 
 //Web socket getting a response from the server that all the strokes have been cleared and to redraw a blank canvas
 
 socket.on("cleared line", function(data){
-	
-	strokes = [];
+    
+    strokes = [];
 
-	redraw();
+    $.ajax({
+        url: "/delete",
+        type: "DELETE"
+    }).done(function(response){
+        console.log(response)
+    })
+
+    redraw();
+
+
 
 
 })
 
-	
+    
 
-	
+    
 
 
 function redraw () {
@@ -327,6 +376,17 @@ function init() {
                 
                 strokes.push(currentLine);
 
+                $.ajax({
+                    url: "/",
+                    type: "POST",
+                    data: currentLine
+               }).done(function(response){
+
+                 console.log(response)
+                 
+                 
+               })  
+
                 socket.emit("new line", currentLine, function(data){
                     
                     
@@ -358,6 +418,7 @@ function init() {
 
     else if ($("#brush").attr("data-status") === "active") {
         
+        
         currentLine = {};
         currentCircle = {};
         
@@ -388,6 +449,7 @@ function init() {
 
         canvas.mousedown(function (e) {
             
+            
             brush.down = true;
 
             currentStroke = {
@@ -401,23 +463,35 @@ function init() {
 
             mouseEvent(e);
         }).mouseup(function (e) {
+
+            console.log(currentStroke)
+
+
+              $.ajax({
+                url: "/",
+                type: "POST",
+                data: currentStroke
+               }).done(function(response){
+
+                 console.log(response)
+                
+                 
+               })  
             
             socket.emit("new line", currentStroke, function(data){
                 
             })
-            
 
             brush.down = false;
 
             mouseEvent(e);
-
-            currentStroke = null;
+            
+            currentStroke = {};
+            
         }).mousemove(function (e) {
             if (brush.down)
                 mouseEvent(e);
-        })
-
-            
+        }) 
     }
 
     else if ($("#circle").attr("data-status") === "active") {
@@ -471,6 +545,17 @@ function init() {
 
                 
                 strokes.push(currentCircle);
+
+                $.ajax({
+                    url: "/",
+                    type: "POST",
+                    data: currentCircle
+                }).done(function(response){
+
+                 console.log(response)
+                 
+                 
+               })  
 
                 socket.emit("new line", currentCircle, function(data){
                     
